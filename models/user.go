@@ -7,17 +7,9 @@ import (
 	"strings"
 
 	"github.com/beego/beego/v2/client/orm"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
-
-// type User struct {
-// 	Id           int64
-// 	first_name   string `orm:"size(128)"`
-// 	last_name    string `orm:"size(128)"`
-// 	email        string `orm:"size(128)"`
-// 	username     string `orm:"size(128)"`
-// 	password     string `orm:"size(128)"`
-// 	phone_number string `orm:"size(128)"`
-// }
 
 type User struct {
 	Id           int64  `json:"-"`
@@ -154,4 +146,14 @@ func DeleteUser(id int64) (err error) {
 		}
 	}
 	return
+}
+
+func (u User) Validate() error {
+	return validation.ValidateStruct(&u,
+		// Fields validation
+		validation.Field(&u.Email, validation.Required, is.Email),
+		validation.Field(&u.Username, validation.Required),
+		validation.Field(&u.First_name, validation.Required),
+		validation.Field(&u.Password, validation.Required),
+	)
 }

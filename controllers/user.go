@@ -5,6 +5,7 @@ import (
 	"nomadiclife/models"
 
 	beego "github.com/beego/beego/v2/server/web"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // UserController operations for User
@@ -24,6 +25,11 @@ func (c *UserController) URLMapping() {
 	c.Mapping("GetAll", c.GetAll)
 	c.Mapping("Put", c.Put)
 	c.Mapping("Delete", c.Delete)
+}
+
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
 }
 
 // Post ...
@@ -47,13 +53,21 @@ func (c *UserController) Post() {
 		result := Result{0, "error"}
 		c.Data["json"] = &result
 	}
-	id, err := models.AddUser(&user)
-	if err == nil {
-		result := Result{id, "success"}
+	validation_error := user.Validate()
+	if validation_error != nil {
+		validation_err_msg, _ := json.Marshal(validation_error)
+		result := Result{0, string(validation_err_msg)}
 		c.Data["json"] = &result
 	} else {
-		result := Result{0, err.Error()}
-		c.Data["json"] = &result
+		user.Password, _ = HashPassword(user.Password)
+		id, err := models.AddUser(&user)
+		if err == nil {
+			result := Result{id, "success"}
+			c.Data["json"] = &result
+		} else {
+			result := Result{0, err.Error()}
+			c.Data["json"] = &result
+		}
 	}
 }
 

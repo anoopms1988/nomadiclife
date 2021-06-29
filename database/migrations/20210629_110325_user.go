@@ -13,7 +13,6 @@ type User_20210629_110325 struct {
 func init() {
 	m := &User_20210629_110325{}
 	m.Created = "20210629_110325"
-
 	migration.Register("User_20210629_110325", m)
 }
 
@@ -23,6 +22,7 @@ func (m *User_20210629_110325) Up() {
 	//m.SQL("ALTER TABLE nomadiclife.`user` MODIFY COLUMN username varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL;")
 	m.SQL("ALTER TABLE nomadiclife.`user` ADD CONSTRAINT email_constraint UNIQUE (email)")
 	m.SQL("ALTER TABLE nomadiclife.`user` ADD CONSTRAINT username_constraint UNIQUE (username)")
+	m.SQL("ALTER TABLE nomadiclife.`user` DROP COLUMN address")
 }
 
 // Reverse the migrations
