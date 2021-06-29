@@ -9,10 +9,24 @@ import (
 	"github.com/beego/beego/v2/client/orm"
 )
 
+// type User struct {
+// 	Id           int64
+// 	first_name   string `orm:"size(128)"`
+// 	last_name    string `orm:"size(128)"`
+// 	email        string `orm:"size(128)"`
+// 	username     string `orm:"size(128)"`
+// 	password     string `orm:"size(128)"`
+// 	phone_number string `orm:"size(128)"`
+// }
+
 type User struct {
-	Id        int64
-	FirstName string `orm:"size(128)"`
-	LastName  string `orm:"size(128)"`
+	Id           int64  `json:"-"`
+	First_name   string `orm:"column(first_name)"`
+	Last_name    string `orm:"column(last_name)"`
+	Email        string `orm:"unique;column(email)"`
+	Username     string `orm:"unique;column(username)"`
+	Password     string `orm:"column(password)"`
+	Phone_number string `orm:"column(phone_number)"`
 }
 
 func init() {

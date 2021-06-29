@@ -1,9 +1,9 @@
 package controllers
 
 import (
+	"encoding/json"
 	"nomadiclife/models"
 
-	"github.com/beego/beego/v2/client/orm"
 	beego "github.com/beego/beego/v2/server/web"
 )
 
@@ -29,22 +29,30 @@ func (c *UserController) URLMapping() {
 // Post ...
 // @Title Create
 // @Description create User
-// @Param	body		body 	models.User	true		"body for User content"
+// @Param	first_name	json string	true		"body for User content"
+// @Param	last_name	json string	true		"body for User content"
+// @Param	email  json string	true		"body for User content"
+// @Param	username json 	string	true		"body for User content"
+// @Param	password json 	string	true		"body for User content"
+// @Param	phone_number json 	string	true		"body for User content"
 // @Success 201 {object} models.User
 // @Failure 403 body is empty
 // @router / [post]
 func (c *UserController) Post() {
 	defer c.ServeJSON()
-	o := orm.NewOrm()
 	var user models.User
-	user.FirstName = "Anoop"
-	user.LastName = "MS"
-	id, err := o.Insert(&user)
+	form := c.Ctx.Input.RequestBody
+	err := json.Unmarshal(form, &user)
+	if err != nil {
+		result := Result{0, "error"}
+		c.Data["json"] = &result
+	}
+	id, err := models.AddUser(&user)
 	if err == nil {
 		result := Result{id, "success"}
 		c.Data["json"] = &result
 	} else {
-		result := Result{0, "error"}
+		result := Result{0, err.Error()}
 		c.Data["json"] = &result
 	}
 }
