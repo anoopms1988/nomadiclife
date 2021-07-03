@@ -1,3 +1,7 @@
+// @APIVersion 1.0.0
+// @Title Nomadiclife
+// @Description Backend API for nomadiclife application
+// @Contact Anoop MS
 package routers
 
 import (
@@ -9,4 +13,6 @@ import (
 func init() {
 	beego.Router("/", &controllers.MainController{})
 	beego.Router("/signup", &controllers.UserController{})
+	beego.Router("/signup", &controllers.UserController{})
+	beego.Router("/forget_password", &controllers.UserController{}, "*:ForgetPassword")
 }

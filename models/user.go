@@ -157,3 +157,16 @@ func (u User) Validate() error {
 		validation.Field(&u.Password, validation.Required),
 	)
 }
+
+//Payload structure for forget password
+// type Email struct {
+// 	Email string `json:"email"`
+// }
+
+// //Forget password validation
+// func (e Email) Validate() error {
+// 	return validation.ValidateStruct(&e,
+// 		// Fields validation
+// 		validation.Field(&e.Email, validation.Required, is.Email),
+// 	)
+// }

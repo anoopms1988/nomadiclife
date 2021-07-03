@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"nomadiclife/helper"
 	"nomadiclife/models"
 
 	beego "github.com/beego/beego/v2/server/web"
@@ -16,6 +17,10 @@ type UserController struct {
 type Result struct {
 	Status int64  `json:"status"`
 	Msg    string `json:"msg"`
+}
+
+type Email struct {
+	Email string `json:"email"`
 }
 
 // URLMapping ...
@@ -52,21 +57,25 @@ func (c *UserController) Post() {
 	if err != nil {
 		result := Result{0, "error"}
 		c.Data["json"] = &result
+		c.Ctx.ResponseWriter.WriteHeader(400)
 	}
 	validation_error := user.Validate()
 	if validation_error != nil {
 		validation_err_msg, _ := json.Marshal(validation_error)
 		result := Result{0, string(validation_err_msg)}
 		c.Data["json"] = &result
+		c.Ctx.ResponseWriter.WriteHeader(400)
 	} else {
 		user.Password, _ = HashPassword(user.Password)
 		id, err := models.AddUser(&user)
 		if err == nil {
 			result := Result{id, "success"}
 			c.Data["json"] = &result
+			c.Ctx.ResponseWriter.WriteHeader(200)
 		} else {
 			result := Result{0, err.Error()}
 			c.Data["json"] = &result
+			c.Ctx.ResponseWriter.WriteHeader(400)
 		}
 	}
 }
@@ -118,5 +127,31 @@ func (c *UserController) Put() {
 // @Failure 403 id is empty
 // @router /:id [delete]
 func (c *UserController) Delete() {
+
+}
+
+// Forget password ...
+// @Title Forgetpassword
+// @Description Forget password feature
+// @Param	email	body string	true
+func (c *UserController) ForgetPassword() {
+	defer c.ServeJSON()
+	email := Email{}
+	json.Unmarshal(c.Ctx.Input.RequestBody, &email)
+	result := helper.Success{true, email}
+	c.Data["json"] = &result
+	c.Ctx.ResponseWriter.WriteHeader(200)
+	// validation_error := email.Validate()
+	// if validation_error != nil {
+	// 	validation_err_msg, _ := json.Marshal(validation_error)
+	// 	result := Result{0, string(validation_err_msg)}
+	// 	c.Data["json"] = &result
+	// 	c.Ctx.ResponseWriter.WriteHeader(400)
+	// } else {
+	// 	json.Unmarshal(c.Ctx.Input.RequestBody, &email)
+	// 	result := helper.Success{true, email}
+	// 	c.Data["json"] = &result
+	// 	c.Ctx.ResponseWriter.WriteHeader(200)
+	// }
 
 }

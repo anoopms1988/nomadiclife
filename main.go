@@ -9,13 +9,16 @@ import (
 )
 
 func init() {
-
 	orm.RegisterDriver("mysql", orm.DRMySQL)
 	orm.RegisterDataBase("default", "mysql", "root:qburst@tcp(localhost:3306)/nomadiclife?charset=utf8")
 	orm.RunCommand()
 }
 
 func main() {
+	if beego.BConfig.RunMode == "dev" {
+		beego.BConfig.WebConfig.DirectoryIndex = true
+		beego.BConfig.WebConfig.StaticDir["/swagger"] = "swagger"
+	}
 	orm.Debug = true
 	beego.Run()
 }

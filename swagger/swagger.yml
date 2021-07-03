@@ -1,3 +1,25 @@
 swagger: "2.0"
-info: {}
+info:
+  title: Nomadiclife
+  description: Backend API for nomadiclife application
+  version: 1.0.0
+  contact:
+    email: Anoop MS
 paths: {}
+definitions:
+  models.User:
+    title: User
+    type: object
+    properties:
+      Email:
+        type: string
+      First_name:
+        type: string
+      Last_name:
+        type: string
+      Password:
+        type: string
+      Phone_number:
+        type: string
+      Username:
+        type: string
