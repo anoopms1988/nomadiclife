@@ -2,10 +2,12 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"nomadiclife/helper"
 	"nomadiclife/models"
 
 	beego "github.com/beego/beego/v2/server/web"
+	"github.com/dchest/uniuri"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -128,5 +130,7 @@ func (c *UserController) Delete() {
 func (c *UserController) ForgetPassword() {
 	email := Email{}
 	json.Unmarshal(c.Ctx.Input.RequestBody, &email)
+	random_password := uniuri.NewLen(6)
+	fmt.Println(random_password)
 	helper.SuccessResponse("New password successfully sent to given address", email, c.Controller)
 }
