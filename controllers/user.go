@@ -2,13 +2,10 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"nomadiclife/helper"
 	"nomadiclife/models"
 
 	beego "github.com/beego/beego/v2/server/web"
-	"github.com/dchest/uniuri"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // UserController operations for User
@@ -25,6 +22,10 @@ type Email struct {
 	Email string `json:"email"`
 }
 
+func (c *UserController) Prepare() {
+
+}
+
 // URLMapping ...
 func (c *UserController) URLMapping() {
 	c.Mapping("Post", c.Post)
@@ -32,11 +33,6 @@ func (c *UserController) URLMapping() {
 	c.Mapping("GetAll", c.GetAll)
 	c.Mapping("Put", c.Put)
 	c.Mapping("Delete", c.Delete)
-}
-
-func HashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	return string(bytes), err
 }
 
 // Post ...
@@ -63,7 +59,7 @@ func (c *UserController) Post() {
 		validation_err_msg, _ := json.Marshal(validation_error)
 		helper.FailureResponse(string(validation_err_msg), c.Controller)
 	} else {
-		user.Password, _ = HashPassword(user.Password)
+		user.Password, _ = models.HashPassword(user.Password)
 		id, err := models.AddUser(&user)
 		if err == nil {
 			helper.SuccessResponse("User successfully registered", id, c.Controller)
@@ -130,7 +126,8 @@ func (c *UserController) Delete() {
 func (c *UserController) ForgetPassword() {
 	email := Email{}
 	json.Unmarshal(c.Ctx.Input.RequestBody, &email)
-	random_password := uniuri.NewLen(6)
-	fmt.Println(random_password)
+	if err := models.ForgetPassword(email.Email); err != nil {
+		helper.FailureResponse(err.Error(), c.Controller)
+	}
 	helper.SuccessResponse("New password successfully sent to given address", email, c.Controller)
 }

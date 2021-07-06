@@ -7,8 +7,10 @@ import (
 	"strings"
 
 	"github.com/beego/beego/v2/client/orm"
+	"github.com/dchest/uniuri"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -158,15 +160,24 @@ func (u User) Validate() error {
 	)
 }
 
-//Payload structure for forget password
-// type Email struct {
-// 	Email string `json:"email"`
-// }
+func ForgetPassword(email string) error {
+	o := orm.NewOrm()
+	user := User{Email: email}
+	if err := o.Read(&user, "Email"); err == nil {
+		random_password := uniuri.NewLen(6)
+		user.Password, _ = HashPassword(random_password)
+		if num, err := o.Update(&user); err == nil {
+			fmt.Println(num)
+			return nil
+		} else {
+			return err
+		}
+	} else {
+		return err
+	}
+}
 
-// //Forget password validation
-// func (e Email) Validate() error {
-// 	return validation.ValidateStruct(&e,
-// 		// Fields validation
-// 		validation.Field(&e.Email, validation.Required, is.Email),
-// 	)
-// }
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
+}
