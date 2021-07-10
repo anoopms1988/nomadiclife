@@ -2,10 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
-	"nomadiclife/helper"
+	"nomadiclife/helper/mails"
+	"nomadiclife/helper/response"
 	"nomadiclife/models"
 
+	"github.com/beego/beego/v2/client/orm"
 	beego "github.com/beego/beego/v2/server/web"
+	"github.com/dchest/uniuri"
 )
 
 // UserController operations for User
@@ -52,19 +55,19 @@ func (c *UserController) Post() {
 	form := c.Ctx.Input.RequestBody
 	err := json.Unmarshal(form, &user)
 	if err != nil {
-		helper.FailureResponse(err.Error(), c.Controller)
+		response.FailureResponse(err.Error(), c.Controller)
 	}
 	validation_error := user.Validate()
 	if validation_error != nil {
 		validation_err_msg, _ := json.Marshal(validation_error)
-		helper.FailureResponse(string(validation_err_msg), c.Controller)
+		response.FailureResponse(string(validation_err_msg), c.Controller)
 	} else {
 		user.Password, _ = models.HashPassword(user.Password)
 		id, err := models.AddUser(&user)
 		if err == nil {
-			helper.SuccessResponse("User successfully registered", id, c.Controller)
+			response.SuccessResponse("User successfully registered", id, c.Controller)
 		} else {
-			helper.FailureResponse(err.Error(), c.Controller)
+			response.FailureResponse(err.Error(), c.Controller)
 		}
 	}
 }
@@ -126,8 +129,22 @@ func (c *UserController) Delete() {
 func (c *UserController) ForgetPassword() {
 	email := Email{}
 	json.Unmarshal(c.Ctx.Input.RequestBody, &email)
-	if err := models.ForgetPassword(email.Email); err != nil {
-		helper.FailureResponse(err.Error(), c.Controller)
+	random_password := uniuri.NewLen(6)
+	err := models.ForgetPassword(email.Email, random_password)
+	if err != nil {
+		if err == orm.ErrNoRows {
+			response.FailureResponse("No user exist for the given email", c.Controller)
+		} else {
+			response.FailureResponse(err.Error(), c.Controller)
+		}
+	} else {
+		//send generated password token to user
+		mail_msg := "Your new password is successfully regenerated.You can later change to a desired password after login.Your new password is " + random_password
+		mail_err := mails.SendMail("nomadsindia99@gmail.com", email.Email, mail_msg)
+		if mail_err != nil {
+			response.FailureResponse(mail_err.Error(), c.Controller)
+		} else {
+			response.SuccessResponse("New password successfully sent to given address", email, c.Controller)
+		}
 	}
-	helper.SuccessResponse("New password successfully sent to given address", email, c.Controller)
 }

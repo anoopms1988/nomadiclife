@@ -3,11 +3,11 @@ package models
 import (
 	"errors"
 	"fmt"
+	"nomadiclife/helper/mails"
 	"reflect"
 	"strings"
 
 	"github.com/beego/beego/v2/client/orm"
-	"github.com/dchest/uniuri"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"golang.org/x/crypto/bcrypt"
@@ -160,11 +160,13 @@ func (u User) Validate() error {
 	)
 }
 
-func ForgetPassword(email string) error {
+func ForgetPassword(email string, random_password string) error {
 	o := orm.NewOrm()
+	if !mails.ValidEmail(email) {
+		return errors.New("invalid email format")
+	}
 	user := User{Email: email}
 	if err := o.Read(&user, "Email"); err == nil {
-		random_password := uniuri.NewLen(6)
 		user.Password, _ = HashPassword(random_password)
 		if num, err := o.Update(&user); err == nil {
 			fmt.Println(num)
