@@ -10,7 +10,7 @@ import (
 
 func init() {
 	orm.RegisterDriver("mysql", orm.DRMySQL)
-	orm.RegisterDataBase("default", "mysql", "root:qburst@tcp(localhost:3306)/nomadiclife?charset=utf8")
+	orm.RegisterDataBase("default", "mysql", "admin:admin123@tcp(localhost:3306)/nomadiclife?charset=utf8")
 	orm.RunCommand()
 }
 

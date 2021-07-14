@@ -63,9 +63,18 @@ func (c *UserController) Post() {
 		response.FailureResponse(string(validation_err_msg), c.Controller)
 	} else {
 		user.Password, _ = models.HashPassword(user.Password)
+		verification_token := uniuri.NewLen(6)
+		user.Verification_token = verification_token
 		id, err := models.AddUser(&user)
 		if err == nil {
-			response.SuccessResponse("User successfully registered", id, c.Controller)
+			verification_link, _ := beego.AppConfig.String("verificationUrl")
+			mail_msg := "Please click this verification link before 7 days. " + verification_link + "/" + verification_token
+			mail_err := mails.SendMail("nomadsindia99@gmail.com", user.Email, mail_msg)
+			if mail_err != nil {
+				response.FailureResponse(mail_err.Error(), c.Controller)
+			} else {
+				response.SuccessResponse("User successfully registered.Please click the verfification link in your mail", id, c.Controller)
+			}
 		} else {
 			response.FailureResponse(err.Error(), c.Controller)
 		}

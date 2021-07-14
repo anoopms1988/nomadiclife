@@ -6,6 +6,7 @@ import (
 	"nomadiclife/helper/mails"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/beego/beego/v2/client/orm"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -14,13 +15,17 @@ import (
 )
 
 type User struct {
-	Id           int64  `json:"-"`
-	First_name   string `orm:"column(first_name)"`
-	Last_name    string `orm:"column(last_name)"`
-	Email        string `orm:"unique;column(email)"`
-	Username     string `orm:"unique;column(username)"`
-	Password     string `orm:"column(password)"`
-	Phone_number string `orm:"column(phone_number)"`
+	Id                 int64     `json:"-"`
+	First_name         string    `orm:"column(first_name)"`
+	Last_name          string    `orm:"column(last_name)"`
+	Email              string    `orm:"unique;column(email)"`
+	Username           string    `orm:"unique;column(username)"`
+	Password           string    `orm:"column(password)"`
+	Phone_number       string    `orm:"column(phone_number)"`
+	Verified           bool      `orm:"column(verified);default(false)"`
+	Created            time.Time `orm:"auto_now_add;type(datetime)"`
+	Updated            time.Time `orm:"auto_now;type(datetime)"`
+	Verification_token string    `orm:"column(verification_token)"`
 }
 
 func init() {
