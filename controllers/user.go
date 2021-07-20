@@ -25,8 +25,8 @@ type Email struct {
 	Email string `json:"email"`
 }
 
-func (c *UserController) Prepare() {
-
+type Token struct {
+	Token string `json:"token"`
 }
 
 // URLMapping ...
@@ -155,5 +155,20 @@ func (c *UserController) ForgetPassword() {
 		} else {
 			response.SuccessResponse("New password successfully sent to given address", email, c.Controller)
 		}
+	}
+}
+
+// Veify email link feature
+// @Title VeifyEmail
+// @Description Veify email link feature
+// @Param	token	body string	true
+func (c *UserController) VerifyEmail() {
+	token := Token{}
+	json.Unmarshal(c.Ctx.Input.RequestBody, &token)
+	err := models.VeificationCheck(token.Token)
+	if err != nil {
+		response.FailureResponse(err.Error(), c.Controller)
+	} else {
+		response.SuccessResponse("Email successfully verified", token.Token, c.Controller)
 	}
 }

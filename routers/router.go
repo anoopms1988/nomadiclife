@@ -13,6 +13,6 @@ import (
 func init() {
 	beego.Router("/", &controllers.MainController{})
 	beego.Router("/signup", &controllers.UserController{})
-	beego.Router("/signup", &controllers.UserController{})
 	beego.Router("/forget_password", &controllers.UserController{}, "*:ForgetPassword")
+	beego.Router("/verify_email", &controllers.UserController{}, "post:VerifyEmail")
 }

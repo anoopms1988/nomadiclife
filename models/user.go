@@ -188,3 +188,19 @@ func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
 }
+
+func VeificationCheck(token string) error {
+	o := orm.NewOrm()
+	var u User
+	qs := o.QueryTable("user")
+	err := qs.Filter("Created__gte", time.Now().AddDate(0, 0, -7)).
+		Filter("Verification_token__iexact", token).Filter("Verified", false).One(&u)
+	if err != nil {
+		return err
+	}
+	u.Verified = true
+	if _, err := o.Update(&u, "Verified"); err != nil {
+		return err
+	}
+	return nil
+}
